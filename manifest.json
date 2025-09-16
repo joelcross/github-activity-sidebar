@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "GitHub Activity Sidebar",
+  "version": "0.1.0",
+  "description": "Adds an activity sidebar to GitHub repository pages.",
+  "content_scripts": [
+    {
+      "matches": ["https://github.com/*"],
+      "js": ["dist/content.js"],
+      "css": ["src/styles.css"]
+    }
+  ]
+}
