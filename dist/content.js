@@ -50,9 +50,10 @@ function createActivityItem(avatarUrl, username, message, link, date) {
 function renderActivity(sidebar, commits) {
     sidebar.innerHTML = "<h2>Recent Commits</h2>";
     // Add each commit into the sidebar
-    commits.slice(0, 10).forEach(commit => {
+    commits.slice(0, 10).forEach((commit) => {
         const author = commit.commit.author?.name || commit.author?.login || "Unknown";
-        const avatar = commit.author?.avatar_url || "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png";
+        const avatar = commit.author?.avatar_url ||
+            "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png";
         const msg = commit.commit.message.split("\n")[0];
         const link = commit.html_url;
         const date = formatDate(commit.commit.author.date);
@@ -93,8 +94,8 @@ async function injectActivitySidebar() {
     container.appendChild(toggle);
     container.appendChild(sidebar);
     // Find correct location to inject sidebar HTML
-    const repoWrapper = document.querySelector("div[data-pjax='#repo-content-pjax-container']")
-        || document.querySelector("div#repo-content-pjax-container");
+    const repoWrapper = document.querySelector("div[data-pjax='#repo-content-pjax-container']") ||
+        document.querySelector("div#repo-content-pjax-container");
     if (repoWrapper && repoWrapper.parentElement) {
         const parent = repoWrapper.parentElement;
         parent.style.display = "flex";

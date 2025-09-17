@@ -22,7 +22,7 @@ I created this project to explore browser extensions, GitHub API integration, an
 
 ## 🔧 Installation
 
-_Option 1:_ Load as unpacked extension
+This extension can be installed in Google Chrome by loading it as an unpacked extension:
 
 1. Clone this repo:
    `git clone https://github.com/yourusername/github-activity-sidebar.git`
@@ -30,8 +30,6 @@ _Option 1:_ Load as unpacked extension
 2. Open Chrome > Extensions > Load unpacked > Select repo folder.
 
 3. Navigate to any GitHub repository “Code” tab to see the sidebar.
-
-_Option 2:_ Install [here](https://www.google.com) via Chrome Web Store
 
 ## 💻 What I Learned / Skills Demonstrated
 
