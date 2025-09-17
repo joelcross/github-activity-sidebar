@@ -1,5 +1,7 @@
 # github-activity-sidebar
-A browser extension that adds a collapsible "recent activity" sidebar to GitHub repositories, showing the latest commits directly on the home page of the repository.
+A browser extension that adds a collapsible "recent activity" sidebar to GitHub repositories, showing the latest commits directly on the home page of the repository:
+<img width="1470" height="796" alt="Screenshot 2025-09-17 at 2 14 56 PM" src="https://github.com/user-attachments/assets/7029e6ad-7f7c-49ff-a887-f5670ac4e0ce" />
+
 
 ## 🚀 Features
 - Displays the most recent commits on the repo's Code tab
