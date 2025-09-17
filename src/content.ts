@@ -7,7 +7,9 @@ function getRepoInfo(): { owner: string; repo: string } | null {
 
 // Get commit data for repo
 async function getCommits(owner: string, repo: string) {
-  const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/commits`);
+  const res = await fetch(
+    `https://api.github.com/repos/${owner}/${repo}/commits`
+  );
   if (!res.ok) return [];
   return res.json();
 }
@@ -27,8 +29,8 @@ function formatMessage(msg: string) {
 
 // Format timestamp nicely
 function formatDate(dateStr: string) {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  const date = new Date(dateStr);
+  return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
 
 // Return stylized HTML block for each commit
@@ -63,9 +65,12 @@ function renderActivity(sidebar: HTMLElement, commits: any[]) {
   sidebar.innerHTML = "<h2>Recent Commits</h2>";
 
   // Add each commit into the sidebar
-  commits.slice(0, 10).forEach(commit => {
-    const author = commit.commit.author?.name || commit.author?.login || "Unknown";
-    const avatar = commit.author?.avatar_url || "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png";
+  commits.slice(0, 10).forEach((commit) => {
+    const author =
+      commit.commit.author?.name || commit.author?.login || "Unknown";
+    const avatar =
+      commit.author?.avatar_url ||
+      "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png";
     const msg = commit.commit.message.split("\n")[0];
     const link = commit.html_url;
     const date = formatDate(commit.commit.author.date);
@@ -80,7 +85,10 @@ async function injectActivitySidebar() {
   if (!repoInfo) return;
 
   // Get the first path segment after owner/repo
-  const extraPath = window.location.pathname.replace(`/${repoInfo.owner}/${repoInfo.repo}`, "");
+  const extraPath = window.location.pathname.replace(
+    `/${repoInfo.owner}/${repoInfo.repo}`,
+    ""
+  );
   if (extraPath && extraPath !== "/") return; // Not on code tab, skip
 
   // Prevent duplicate injection
@@ -111,8 +119,9 @@ async function injectActivitySidebar() {
   container.appendChild(sidebar);
 
   // Find correct location to inject sidebar HTML
-  const repoWrapper = document.querySelector("div[data-pjax='#repo-content-pjax-container']") 
-                     || document.querySelector("div#repo-content-pjax-container");
+  const repoWrapper =
+    document.querySelector("div[data-pjax='#repo-content-pjax-container']") ||
+    document.querySelector("div#repo-content-pjax-container");
 
   if (repoWrapper && repoWrapper.parentElement) {
     const parent = repoWrapper.parentElement;
