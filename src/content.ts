@@ -17,18 +17,6 @@ async function fetchCommits(owner: string, repo: string) {
   return res.json();
 }
 
-async function fetchPulls(owner: string, repo: string) {
-  const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/pulls?state=all&sort=updated`);
-  if (!res.ok) return [];
-  return res.json();
-}
-
-async function fetchIssues(owner: string, repo: string) {
-  const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/issues?state=all&sort=updated`);
-  if (!res.ok) return [];
-  return res.json();
-}
-
 // Escape HTML to prevent injection
 function escapeHTML(str: string) {
   const div = document.createElement("div");
@@ -59,8 +47,7 @@ function createActivityItem(
       <img src="${avatarUrl}" width="24" height="24" style="border-radius:50%;margin-right:8px;">
       <div>
         <a href="${link}" target="_blank" style="font-weight:500;color:#0366d6;text-decoration:none;">
-          ${username}
-        </a>: ${formattedMsg} <br>
+          ${username}</a>: ${formattedMsg} <br>
         <small style="color:#57606a">${date}</small>
       </div>
     </div>
@@ -69,39 +56,29 @@ function createActivityItem(
   return item;
 }
 
-function renderActivity(sidebar: HTMLElement, commits: any[], pulls: any[], issues: any[]) {
-  sidebar.innerHTML = "<h2>Recent Activity</h2>";
+function renderActivity(sidebar: HTMLElement, commits: any[]) {
+  sidebar.innerHTML = "<h2>Recent Commits</h2>";
 
-  commits.slice(0, 3).forEach(commit => {
-    const author = commit.commit.author.name;
+  commits.slice(0, 10).forEach(commit => {
+    const author = commit.commit.author?.name || commit.author?.login || "Unknown";
     const avatar = commit.author?.avatar_url || "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png";
     const msg = commit.commit.message.split("\n")[0];
     const link = commit.html_url;
     const date = formatDate(commit.commit.author.date);
     sidebar.appendChild(createActivityItem(avatar, author, msg, link, date));
   });
-
-  pulls.slice(0, 3).forEach(pr => {
-    const user = pr.user.login;
-    const avatar = pr.user.avatar_url;
-    const title = pr.title;
-    const link = pr.html_url;
-    const date = formatDate(pr.updated_at);
-    sidebar.appendChild(createActivityItem(avatar, user, `PR: ${title}`, link, date));
-  });
-
-  issues.slice(0, 3).forEach(issue => {
-    if (issue.pull_request) return;
-    const user = issue.user.login;
-    const avatar = issue.user.avatar_url;
-    const title = issue.title;
-    const link = issue.html_url;
-    const date = formatDate(issue.updated_at);
-    sidebar.appendChild(createActivityItem(avatar, user, `Issue: ${title}`, link, date));
-  });
 }
 
 async function injectActivitySidebar() {
+  // Only show on the "Code" tab (repo home page)
+  const repoInfo = getRepoInfo();
+  if (!repoInfo) return;
+
+  // Get the first path segment after owner/repo
+  const extraPath = window.location.pathname.replace(`/${repoInfo.owner}/${repoInfo.repo}`, "");
+  if (extraPath && extraPath !== "/") return; // Not on code tab, skip
+
+  // Prevent duplicate injection
   if (document.getElementById("gh-activity-sidebar-container")) return;
 
   // Wrapper for sidebar + toggle
@@ -141,17 +118,10 @@ async function injectActivitySidebar() {
     document.body.appendChild(container);
   }
 
-  const repoInfo = getRepoInfo();
-  if (!repoInfo) return;
 
   try {
-    const [commits, pulls, issues] = await Promise.all([
-      fetchCommits(repoInfo.owner, repoInfo.repo),
-      fetchPulls(repoInfo.owner, repoInfo.repo),
-      fetchIssues(repoInfo.owner, repoInfo.repo)
-    ]);
-
-    renderActivity(sidebar, commits, pulls, issues);
+    const commits = await fetchCommits(repoInfo.owner, repoInfo.repo);
+    renderActivity(sidebar, commits);
   } catch (err) {
     sidebar.innerHTML = "<p>Error fetching activity.</p>";
     console.error(err);
