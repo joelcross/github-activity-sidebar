@@ -1,11 +1,11 @@
-#gh-activity-sidebar-container {
+#sidebar-container {
   display: flex;
   align-items: flex-start;
   position: relative;
   top: 25px;
 }
 
-#gh-activity-sidebar {
+#sidebar {
   width: 280px;
   background-color: #f6f8fa; 
   border: 1px solid #d0d7de;
@@ -20,11 +20,11 @@
   transition: transform 0.3s ease;
 }
 
-#gh-activity-sidebar.collapsed {
+#sidebar.collapsed {
   transform: translateX(100%);
 }
 
-#gh-activity-sidebar-toggle {
+#sidebar-toggle {
   width: 24px;
   height: 24px;
   background-color: #f6f8fa;
@@ -39,7 +39,7 @@
   user-select: none;
 }
 
-#gh-activity-sidebar h2 {
+#sidebar h2 {
   margin-top: 0;
   margin-bottom: 12px;
   font-size: 16px;
@@ -47,11 +47,11 @@
   color: #24292f;
 }
 
-.gh-activity-item img {
+.item img {
   flex-shrink: 0;
   border-radius: 50%;
 }
 
-.gh-activity-item a:hover {
+.item a:hover {
   text-decoration: underline;
 }

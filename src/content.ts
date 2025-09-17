@@ -5,13 +5,8 @@ function getRepoInfo(): { owner: string; repo: string } | null {
   return { owner: match[1], repo: match[2] };
 }
 
-// Format timestamp nicely
-function formatDate(dateStr: string) {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
-}
-
-async function fetchCommits(owner: string, repo: string) {
+// Get commit data for repo
+async function getCommits(owner: string, repo: string) {
   const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/commits`);
   if (!res.ok) return [];
   return res.json();
@@ -30,6 +25,13 @@ function formatMessage(msg: string) {
   return escaped.replace(/`([^`]+)`/g, "<code>$1</code>");
 }
 
+// Format timestamp nicely
+function formatDate(dateStr: string) {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
+// Return stylized HTML block for each commit
 function createActivityItem(
   avatarUrl: string,
   username: string,
@@ -38,7 +40,7 @@ function createActivityItem(
   date: string
 ) {
   const item = document.createElement("div");
-  item.className = "gh-activity-item";
+  item.className = "item";
 
   const formattedMsg = formatMessage(message);
 
@@ -56,9 +58,11 @@ function createActivityItem(
   return item;
 }
 
+// Render commits in sidebar
 function renderActivity(sidebar: HTMLElement, commits: any[]) {
   sidebar.innerHTML = "<h2>Recent Commits</h2>";
 
+  // Add each commit into the sidebar
   commits.slice(0, 10).forEach(commit => {
     const author = commit.commit.author?.name || commit.author?.login || "Unknown";
     const avatar = commit.author?.avatar_url || "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png";
@@ -69,6 +73,7 @@ function renderActivity(sidebar: HTMLElement, commits: any[]) {
   });
 }
 
+// Inject sidebar into the webpage
 async function injectActivitySidebar() {
   // Only show on the "Code" tab (repo home page)
   const repoInfo = getRepoInfo();
@@ -79,23 +84,23 @@ async function injectActivitySidebar() {
   if (extraPath && extraPath !== "/") return; // Not on code tab, skip
 
   // Prevent duplicate injection
-  if (document.getElementById("gh-activity-sidebar-container")) return;
+  if (document.getElementById("sidebar-container")) return;
 
   // Wrapper for sidebar + toggle
   const container = document.createElement("div");
-  container.id = "gh-activity-sidebar-container";
+  container.id = "sidebar-container";
   container.style.display = "flex";
   container.style.alignItems = "flex-start";
   container.style.position = "relative";
 
   const sidebar = document.createElement("div");
-  sidebar.id = "gh-activity-sidebar";
-  sidebar.className = "gh-activity-sidebar";
+  sidebar.id = "sidebar";
+  sidebar.className = "sidebar";
   sidebar.innerHTML = "<h2>Loading activity...</h2>";
 
   // Toggle button
   const toggle = document.createElement("div");
-  toggle.id = "gh-activity-sidebar-toggle";
+  toggle.id = "sidebar-toggle";
   toggle.textContent = "◄";
   toggle.addEventListener("click", () => {
     sidebar.classList.toggle("collapsed");
@@ -105,6 +110,7 @@ async function injectActivitySidebar() {
   container.appendChild(toggle);
   container.appendChild(sidebar);
 
+  // Find correct location to inject sidebar HTML
   const repoWrapper = document.querySelector("div[data-pjax='#repo-content-pjax-container']") 
                      || document.querySelector("div#repo-content-pjax-container");
 
@@ -118,9 +124,9 @@ async function injectActivitySidebar() {
     document.body.appendChild(container);
   }
 
-
+  // Handle possible errors
   try {
-    const commits = await fetchCommits(repoInfo.owner, repoInfo.repo);
+    const commits = await getCommits(repoInfo.owner, repoInfo.repo);
     renderActivity(sidebar, commits);
   } catch (err) {
     sidebar.innerHTML = "<p>Error fetching activity.</p>";
@@ -128,7 +134,8 @@ async function injectActivitySidebar() {
   }
 }
 
-// Observe PJAX navigation
+// Observe PJAX navigation to ensure that the sidebar is only displayed
+// on the correct pages
 const observer = new MutationObserver(() => injectActivitySidebar());
 observer.observe(document.body, { childList: true, subtree: true });
 
